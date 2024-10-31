@@ -3,9 +3,9 @@ import requests
 
 # Function to generate content using the Gemini API
 def generate_content(prompt):
-    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?"  # Replace with the actual API endpoint
+    url = "https://api.gemini.com/generate"  # Replace with the actual API endpoint
     headers = {
-        "Authorization": "AIzaSyBvmRTbsHow6Rl2tp_BKWwUWMSpiWPk4Q8",  # Replace with your actual API key
+        "Authorization": "Bearer YOUR_API_KEY",  # Replace with your actual API key
         "Content-Type": "application/json"
     }
     data = {
@@ -18,7 +18,7 @@ def generate_content(prompt):
     if response.status_code == 200:
         return response.json()['text']  # Adjust based on API response structure
     else:
-        st.error("Error: " + response.text)
+        st.error(f"Error: {response.status_code} - {response.json().get('error', {}).get('message', 'Unknown error')}")
         return None
 
 # Function to repurpose content
