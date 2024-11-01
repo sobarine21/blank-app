@@ -1,60 +1,46 @@
+# Required Libraries
 import streamlit as st
-import requests
+import pandas as pd
+import random
+import string
 
-# Function to generate content using the Gemini API
-def generate_content(prompt):
-    url = "https://api.gemini.com/generate"  # Replace with the actual API endpoint
-    headers = {
-        "Authorization": "Bearer YOUR_API_KEY",  # Replace with your actual API key
-        "Content-Type": "application/json"
-    }
-    data = {
-        "prompt": prompt,
-        "max_tokens": 150  # Adjust as needed
-    }
-    
-    response = requests.post(url, json=data, headers=headers)
-    
-    if response.status_code == 200:
-        return response.json()['text']  # Adjust based on API response structure
-    else:
-        st.error(f"Error: {response.status_code} - {response.json().get('error', {}).get('message', 'Unknown error')}")
-        return None
+# Mystery Names Generator
+def generate_mystery_name():
+    adjectives = ["Bold", "Mysterious", "Silent", "Unknown", "Ghost"]
+    nouns = ["User", "Poster", "Writer", "Voice", "Mind"]
+    return f"{random.choice(adjectives)}_{random.choice(nouns)}"
 
-# Function to repurpose content
-def repurpose_content(original_content, format_type):
-    if format_type == "Blog Post":
-        return f"## Blog Post\n\n{original_content}"
-    elif format_type == "Social Media Post":
-        return f"📣 {original_content[:100]}..."  # Shortened for social media
-    elif format_type == "Email":
-        return f"Subject: Exciting Update!\n\n{original_content}"
-    return original_content
+# Initialize Session State
+if 'posts' not in st.session_state:
+    st.session_state.posts = []
 
-# Main Streamlit app function
-def main():
-    st.title("Content Repurposing Platform")
-    
-    # Input for the content generation prompt
-    prompt = st.text_area("Enter your content prompt:")
-    
-    if st.button("Generate Content"):
-        if prompt:
-            generated_content = generate_content(prompt)
-            if generated_content:
-                st.subheader("Generated Content:")
-                st.write(generated_content)
+if 'username' not in st.session_state:
+    st.session_state.username = generate_mystery_name()
 
-                # Options to repurpose the content
-                format_type = st.selectbox("Select format to repurpose content:", 
-                                            ["Blog Post", "Social Media Post", "Email"])
-                
-                if st.button("Repurpose Content"):
-                    repurposed_content = repurpose_content(generated_content, format_type)
-                    st.subheader(f"{format_type} Preview:")
-                    st.write(repurposed_content)
-        else:
-            st.error("Please enter a prompt!")
+# Streamlit App
+st.title("Anonymous Community Feed")
 
-if __name__ == "__main__":
-    main()
+# User can change their mystery name
+def change_username():
+    st.session_state.username = generate_mystery_name()
+
+st.button("Change Mystery Name", on_click=change_username)
+
+# Display Current Mystery Name
+st.write(f"Your Mystery Name: {st.session_state.username}")
+
+# Text Input for New Posts
+new_post = st.text_input("Make a new post:")
+
+# Submit New Post
+def submit_post():
+    st.session_state.posts.append({"username": st.session_state.username, "post": new_post})
+    st.session_state.posts = sorted(st.session_state.posts, key=lambda x: random.random())  # Shuffle posts for anonymity
+
+if st.button("Post"):
+    submit_post()
+
+# Display Community Feed
+st.header("Community Feed")
+for post in st.session_state.posts:
+    st.write(f"{post['username']}: {post['post']}")
