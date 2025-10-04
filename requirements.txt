@@ -1,1 +1,8 @@
 streamlit
+google-api-python-client
+beautifulsoup4
+langdetect
+textblob
+pandas
+matplotlib
+requests
